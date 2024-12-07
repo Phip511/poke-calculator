@@ -1,147 +1,169 @@
-// Hello world program
-// console.log('Hello World');
+// API Base URL
+const apiBase = "https://pokeapi.co/api/v2";
 
-// let name = 'Mosh';
-// console.log(name);
-// cannot be a reserved keyword (if, else, etc.)
-// Names should be meaningful
-// Names cannot start with a number
-// Names cannot contain a space or hyphen
-// Case sensitive
-//EX
-// let firstName='';
-// let lastName='';
-
-/*
-// use consts if you dont want to deal w code
-const interestRate = 0.3;
-interestRate = 1;
-console.log(interestRate);
-*/
-
-/*
-let name = 'Mosh'; // string literal
-let age = 30; // number literal
-let isApproved = false; // boolean literal
-let firstName = undefined;
-let lastName = null; // use null when you explicitly want to clear a value
-*/
-
-/*
-// OOP: define w 'let name = {data};'
-let person = {
-    name: 'Mosh',
-    age: 30
+// Local variables
+let evGains = {
+  hp: 0,
+  attack: 0,
+  defense: 0,
+  specialAttack: 0,
+  specialDefense: 0,
+  speed: 0,
 };
 
-// Dot Notation
-person.name = 'John';
+let currentEVs = {
+  hp: 0,
+  attack: 0,
+  defense: 0,
+  specialAttack: 0,
+  specialDefense: 0,
+  speed: 0,
+};
 
-// Bracket Notation
-person['name'] = 'Mary'
+// Fetch Pokémon generations
+async function fetchGenerations() {
+  const generationList = document.getElementById("generationList");
+  try {
+    const response = await fetch(`${apiBase}/generation/`);
+    const data = await response.json();
 
-console.log(person.name);
-*/
+    // Populate the generation dropdown
+    data.results.forEach((generation, index) => {
+      const option = document.createElement("option");
+      option.value = generation.url;
+      option.textContent = `Generation ${index + 1}`;
+      generationList.appendChild(option);
+    });
 
-/*
-// Arrays
-let selectedColors = ['red','blue'];
-selectedColors[2] = 'green'; // dynamic allocation of entries (length extends)
-selectedColors[3] = 1; // dynamic typing
-console.log(selectedColors); // displays entire arary
-console.log(selectedColors[0]); // displays entry 0
-console.log(selectedColors[2]);
-*/
-
-/*
-//functions    //parameter (input), seperate entries w commas
-function greet(name) {
-    console.log('Hello ' + name);
-}
-
-greet('John'); // John is an argument to the greet function
-*/
-
-// functions continued
-// previous function performs a task
-
-// Calculating a value
-/*
-function square(number) {
-    return number * number;
-}
-*/
-// basis for all stat value functions, copy with ids
-// once api is running, edit add functions with new values
-function getValHP(){
-    return Number(document.getElementById("hp").innerHTML);
-}
-function addHP(){
-    x = getValHP() + 1;
-    document.getElementById("hp").innerHTML = x;
-}
-//attack
-function getValATK(){
-    return Number(document.getElementById("atk").innerHTML);
-}
-function addATK(){
-    x = getValATK() + 1;
-    document.getElementById("atk").innerHTML = x;
-}
-//special attack
-function getValSPA(){
-    return Number(document.getElementById("spa").innerHTML);
-}
-function addSPA(){
-    x = getValSPA() + 1;
-    document.getElementById("spa").innerHTML = x;
-}
-//defense
-function getValDEF(){
-    return Number(document.getElementById("def").innerHTML);
-}
-function addDEF(){
-    x = getValDEF() + 1;
-    document.getElementById("def").innerHTML = x;
-}
-//special defense
-function getValSPD(){
-    return Number(document.getElementById("spd").innerHTML);
-}
-function addSPD(){
-    x = getValSPD() + 1;
-    document.getElementById("spd").innerHTML = x;
-}
-//speed
-function getValSPE(){
-    return Number(document.getElementById("spe").innerHTML);
-}
-function addSPE(){
-    x = getValSPE() + 1;
-    document.getElementById("spe").innerHTML = x;
+    // Add change event listener to fetch Pokémon
+    generationList.addEventListener("change", (event) => {
+      fetchPokemonByGeneration(event.target.value);
+    });
+  } catch (error) {
+    console.error("Error fetching generations:", error);
+  }
 }
 
-function add1All(){ // test function
-    addHP();
-    addATK();
-    addSPA();
-    addDEF();
-    addSPD();
-    addSPE();
+// Fetch Pokémon for a selected generation
+async function fetchPokemonByGeneration(genUrl) {
+  const pokemonList = document.getElementById("pokemonList");
+  pokemonList.innerHTML = ""; // Clear existing Pokémon options
+
+  try {
+    const response = await fetch(genUrl);
+    const data = await response.json();
+
+    // Populate the Pokémon dropdown
+    data.pokemon_species.forEach((species) => {
+      const option = document.createElement("option");
+      option.value = species.name;
+      option.textContent = species.name;
+      pokemonList.appendChild(option);
+    });
+
+    // Add change event listener to fetch EVs
+    pokemonList.addEventListener("change", (event) => {
+      fetchPokemonEVs(event.target.value);
+    });
+  } catch (error) {
+    console.error("Error fetching Pokémon for generation:", error);
+  }
 }
 
-function button(){
-    add1All();
-    //hp=getValHP,atk=getValATK,spa=getValSPA,def=getValDEF,spd=getValSPD,spe=getValSPE;
-    console.log(getValHP());
-    upperBoundCheck()
+// Fetch Pokémon EVs and display image
+async function fetchPokemonEVs(pokemonName) {
+  try {
+    const response = await fetch(`${apiBase}/pokemon/${pokemonName}`);
+    const data = await response.json();
+
+    // Set EV gains
+    evGains = {
+      hp: data.stats.find(stat => stat.stat.name === "hp").effort || 0,
+      attack: data.stats.find(stat => stat.stat.name === "attack").effort || 0,
+      defense: data.stats.find(stat => stat.stat.name === "defense").effort || 0,
+      specialAttack: data.stats.find(stat => stat.stat.name === "special-attack").effort || 0,
+      specialDefense: data.stats.find(stat => stat.stat.name === "special-defense").effort || 0,
+      speed: data.stats.find(stat => stat.stat.name === "speed").effort || 0,
+    };
+
+    // Update EV gains display
+    updateEVGainsDisplay();
+
+    // Display Pokémon image
+    document.getElementById("pokemonImage").src = data.sprites.front_default || "";
+  } catch (error) {
+    console.error("Error fetching Pokémon EVs:", error);
+  }
 }
 
-function upperBoundCheck(){
-    n = 5 //upper bound variable
-    stop = "upper bound reached; stop here"
-    if(getValHP() >= n | getValATK() >= n | getValDEF() >= n | getValSPA() >= n | getValSPD() >= n | getValSPE() >= n) { // change value to 252 later
-        document.getElementById("checker").innerHTML = stop
+// Update the EV Gains display
+function updateEVGainsDisplay() {
+  document.getElementById("gainHp").textContent = evGains.hp;
+  document.getElementById("gainAtk").textContent = evGains.attack;
+  document.getElementById("gainDef").textContent = evGains.defense;
+  document.getElementById("gainSpa").textContent = evGains.specialAttack;
+  document.getElementById("gainSpd").textContent = evGains.specialDefense;
+  document.getElementById("gainSpe").textContent = evGains.speed;
+}
 
+// Function to show a flashing notification
+function showNotification(message) {
+    const notificationContainer = document.getElementById("notification");
+    
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = "notification";
+    notification.textContent = message;
+  
+    // Append to the container
+    notificationContainer.appendChild(notification);
+  
+    // Remove the notification after the animation ends
+    setTimeout(() => {
+      notificationContainer.removeChild(notification);
+    }, 3000); // Matches the duration of the fade-out animation
+  }
+
+// Allocate EVs based on gains
+function allocateEVs() {
+  const targets = {
+    hp: parseInt(document.getElementById("targetHp").value),
+    attack: parseInt(document.getElementById("targetAtk").value),
+    defense: parseInt(document.getElementById("targetDef").value),
+    specialAttack: parseInt(document.getElementById("targetSpa").value),
+    specialDefense: parseInt(document.getElementById("targetSpd").value),
+    speed: parseInt(document.getElementById("targetSpe").value),
+  };
+
+  // Update current EVs with bounds check
+  for (const stat in evGains) {
+    const currentStatValue = currentEVs[stat];
+    const newStatValue = Math.min(
+      currentStatValue + evGains[stat],
+      targets[stat]
+    );
+
+    if (currentStatValue !== newStatValue && newStatValue === targets[stat]) {
+      // Show notification when the stat reaches its target
+      showNotification(`${stat.charAt(0).toUpperCase() + stat.slice(1)} has reached its goal!`);
     }
+
+    currentEVs[stat] = newStatValue;
+  }
+
+  // Update the display
+  updateCurrentEVsDisplay();
 }
+
+// Update the Current EVs display
+function updateCurrentEVsDisplay() {
+  document.getElementById("currentHp").textContent = currentEVs.hp;
+  document.getElementById("currentAtk").textContent = currentEVs.attack;
+  document.getElementById("currentDef").textContent = currentEVs.defense;
+  document.getElementById("currentSpa").textContent = currentEVs.specialAttack;
+  document.getElementById("currentSpd").textContent = currentEVs.specialDefense;
+  document.getElementById("currentSpe").textContent = currentEVs.speed;
+}
+
+// Initialize the app
+fetchGenerations();

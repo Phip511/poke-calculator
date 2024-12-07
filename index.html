@@ -3,19 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>EV Counter</title>
+    <style>
+        #pokemonImage {
+            max-width: 150px;
+            max-height: 150px;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1> EV Counter</h1> 
-    <p id="output"> graphics coming soon, name here -> <input type="text"></p>
-    <label id = "checker">All good keep going!</label>
-    <p id = "hp">0</p>
-    <p id = "atk">0</p>
-    <p id = "spa">0</p>
-    <p id = "def">0</p>
-    <p id = "spd">0</p>
-    <p id = "spe">0</p>
-    <button onclick="button()">TEST BUTTON</button>
-    <script src="index.js">// Comment (Script header is used for javascript input)</script> 
+    <h1>EV Counter</h1> 
+
+    <!-- Dropdowns for selecting a Pokémon -->
+    <label for="generationList">Select Generation:</label>
+    <select id="generationList"></select>
+    <label for="pokemonList">Select Pokémon:</label>
+    <select id="pokemonList"></select>
+
+    <!-- EV Gains -->
+    <h2>EV Gains</h2>
+    <p id="evGains">
+        HP: <span id="gainHp">0</span><br>
+        Attack: <span id="gainAtk">0</span><br>
+        Defense: <span id="gainDef">0</span><br>
+        Special Attack: <span id="gainSpa">0</span><br>
+        Special Defense: <span id="gainSpd">0</span><br>
+        Speed: <span id="gainSpe">0</span>
+    </p>
+
+    <!-- Target Pokémon Image -->
+    <img id="pokemonImage" alt="Selected Pokémon">
+
+    <!-- Current EVs -->
+    <h2>Current EVs</h2>
+    <h3>Make sure to set your target numbers for stats! 0-252, with the total of the stats being 510</h3>
+    <p id="evCurrent">
+        HP: <span id="currentHp">0</span> (Target: <input id="targetHp" type="number" value="252" min="0" max="252">)<br>
+        Attack: <span id="currentAtk">0</span> (Target: <input id="targetAtk" type="number" value="252" min="0" max="252">)<br>
+        Defense: <span id="currentDef">0</span> (Target: <input id="targetDef" type="number" value="252" min="0" max="252">)<br>
+        Special Attack: <span id="currentSpa">0</span> (Target: <input id="targetSpa" type="number" value="252" min="0" max="252">)<br>
+        Special Defense: <span id="currentSpd">0</span> (Target: <input id="targetSpd" type="number" value="252" min="0" max="252">)<br>
+        Speed: <span id="currentSpe">0</span> (Target: <input id="targetSpe" type="number" value="252" min="0" max="252">)
+    </p>
+
+    <!-- Button to allocate EVs -->
+    <button onclick="allocateEVs()">Allocate EVs</button>
+    <div id="notification" style="position: fixed; top: 10%; right: 10px;"></div>
+
+    <script src="index.js"></script> 
 </body>
 </html>
