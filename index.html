@@ -4,55 +4,160 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EV Counter</title>
-    <style>
-        #pokemonImage {
-            max-width: 150px;
-            max-height: 150px;
-            display: block;
-            margin-top: 10px;
-        }
-    </style>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <h1>EV Counter</h1> 
+    <main class="app">
+        <h1>EV Counter</h1>
 
-    <!-- Dropdowns for selecting a Pokémon -->
-    <label for="generationList">Select Generation:</label>
-    <select id="generationList"></select>
-    <label for="pokemonList">Select Pokémon:</label>
-    <select id="pokemonList"></select>
+        <div class="layout">
+            <!-- LEFT COLUMN -->
+            <section class="card">
+                <h2>Target Pokémon</h2>
 
-    <!-- EV Gains -->
-    <h2>EV Gains</h2>
-    <p id="evGains">
-        HP: <span id="gainHp">0</span><br>
-        Attack: <span id="gainAtk">0</span><br>
-        Defense: <span id="gainDef">0</span><br>
-        Special Attack: <span id="gainSpa">0</span><br>
-        Special Defense: <span id="gainSpd">0</span><br>
-        Speed: <span id="gainSpe">0</span>
-    </p>
+                <div class="control-group">
+                    <label for="generationList">Generation:</label>
+                    <select id="generationList"></select>
+                </div>
 
-    <!-- Target Pokémon Image -->
-    <img id="pokemonImage" alt="Selected Pokémon">
+                <div class="control-group">
+                    <label for="pokemonList">Species:</label>
+                    <select id="pokemonList"></select>
+                </div>
 
-    <!-- Current EVs -->
-    <h2>Current EVs</h2>
-    <h3>Make sure to set your target numbers for stats! 0-252, with the total of the stats being 510</h3>
-    <p id="evCurrent">
-        HP: <span id="currentHp">0</span> (Target: <input id="targetHp" type="number" value="252" min="0" max="252">)<br>
-        Attack: <span id="currentAtk">0</span> (Target: <input id="targetAtk" type="number" value="252" min="0" max="252">)<br>
-        Defense: <span id="currentDef">0</span> (Target: <input id="targetDef" type="number" value="252" min="0" max="252">)<br>
-        Special Attack: <span id="currentSpa">0</span> (Target: <input id="targetSpa" type="number" value="252" min="0" max="252">)<br>
-        Special Defense: <span id="currentSpd">0</span> (Target: <input id="targetSpd" type="number" value="252" min="0" max="252">)<br>
-        Speed: <span id="currentSpe">0</span> (Target: <input id="targetSpe" type="number" value="252" min="0" max="252">)
-    </p>
+                <div class="control-group">
+                    <label for="formList">Form:</label>
+                    <select id="formList"></select>
+                </div>
 
-    <!-- Button to allocate EVs -->
-    <button onclick="allocateEVs()">Allocate EVs</button>
-    <div id="notification" style="position: fixed; top: 10%; right: 10px;"></div>
+                <div class="control-group search-row">
+                    <label for="pokemonSearch">Search:</label>
+                    <input id="pokemonSearch" type="text" placeholder="ex: charizard">
+                    <button id="searchButton" type="button">Search</button>
+                </div>
 
-    <script src="index.js"></script> 
+                <div class="control-group">
+                    <label for="trainingGen">Training Gen:</label>
+                    <select id="trainingGen">
+                        <option value="current">Modern</option>
+                        <option value="gen3">Gen 3</option>
+                        <option value="gen4">Gen 4</option>
+                        <option value="gen5">Gen 5</option>
+                        <option value="gen6">Gen 6</option>
+                        <option value="gen7">Gen 7+</option>
+                    </select>
+                </div>
+
+                <img id="pokemonImage" src="" alt="Selected Pokémon sprite">
+
+                <h2>EV Gains</h2>
+                <div id="evGains" class="ev-gains">
+                    <div>HP: <span id="gainHp">0</span></div>
+                    <div>Attack: <span id="gainAtk">0</span></div>
+                    <div>Defense: <span id="gainDef">0</span></div>
+                    <div>Special Attack: <span id="gainSpa">0</span></div>
+                    <div>Special Defense: <span id="gainSpd">0</span></div>
+                    <div>Speed: <span id="gainSpe">0</span></div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN -->
+            <section class="card">
+                <h2>Training Progress</h2>
+                <h3>Max 252 per stat, 510 total</h3>
+                
+                <div class="total-ev-box">
+                    Total EVs: <span id="totalEVs">0</span> / 510
+                </div>
+
+                <h2>Training Modifiers</h2>
+
+                <div class="control-group">
+                    <label for="heldItem">Held Item:</label>
+                    <select id="heldItem">
+                        <option value="none">None</option>
+                        <option value="machoBrace">Macho Brace</option>
+                        <option value="powerWeight">Power Weight (HP)</option>
+                        <option value="powerBracer">Power Bracer (Attack)</option>
+                        <option value="powerBelt">Power Belt (Defense)</option>
+                        <option value="powerLens">Power Lens (Special Attack)</option>
+                        <option value="powerBand">Power Band (Special Defense)</option>
+                        <option value="powerAnklet">Power Anklet (Speed)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <input id="pokerus" type="checkbox">
+                        Pokérus
+                    </label>
+                </div>
+
+                <h2>Current EVs</h2>
+
+                <div class="ev-row">
+                    <span>HP</span>
+                    <input id="currentHp" type="number" value="0" min="0" max="252">
+                    <progress id="barHp" value="0" max="252"></progress>
+                    <span>Target</span>
+                    <input id="targetHp" type="number" value="252" min="0" max="252">
+                </div>
+
+                <div class="ev-row">
+                    <span>Atk</span>
+                    <input id="currentAtk" type="number" value="0" min="0" max="252">
+                    <progress id="barAtk" value="0" max="252"></progress>
+                    <span>Target</span>
+                    <input id="targetAtk" type="number" value="252" min="0" max="252">
+                </div>
+
+                <div class="ev-row">
+                    <span>Def</span>
+                    <!-- <span id="currentDef">0</span> -->
+                    <input id="currentDef" type="number" value="0" min="0" max="252">
+                    <progress id="barDef" value="0" max="252"></progress>
+                    <span>Target</span>
+                    <input id="targetDef" type="number" value="252" min="0" max="252">
+                </div>
+
+                <div class="ev-row">
+                    <span>SpA</span>
+                    <!-- <span id="currentSpa">0</span> -->
+                    <input id="currentSpa" type="number" value="0" min="0" max="252">
+                    <progress id="barSpa" value="0" max="252"></progress>
+                    <span>Target</span>
+                    <input id="targetSpa" type="number" value="252" min="0" max="252">
+                </div>
+
+                <div class="ev-row">
+                    <span>SpD</span>
+                    <!-- <span id="currentSpd">0</span> -->
+                    <input id="currentSpd" type="number" value="0" min="0" max="252">
+                    <progress id="barSpd" value="0" max="252"></progress>
+                    <span>Target</span>
+                    <input id="targetSpd" type="number" value="252" min="0" max="252">
+                </div>
+
+                <div class="ev-row">
+                    <span>Spe</span>
+                    <!-- <span id="currentSpe">0</span> -->
+                    <input id="currentSpe" type="number" value="0" min="0" max="252">
+                    <progress id="barSpe" value="0" max="252"></progress>
+                    <span>Target</span>
+                    <input id="targetSpe" type="number" value="252" min="0" max="252">
+                </div>
+
+                <div class="button-row">
+                    <button id="allocateButton" type="button">Allocate EVs</button>
+                    <button id="resetButton" type="button">Reset EVs</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="notification"></div>
+
+    <script src="index.js"></script>
 </body>
 </html>

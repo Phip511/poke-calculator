@@ -1,0 +1,32 @@
+// This query gets the stat of one individual pokemon (10 = id number = pokemon)
+Query stattest {
+  pokemon_v2_pokemonstat(where: {pokemon_id: {_eq: 10}}) {
+    effort
+  }
+}
+// output for stattest: 
+{
+  "data": {
+    "pokemon_v2_pokemonstat": [
+      {
+        "effort": 1
+      },
+      {
+        "effort": 0
+      },
+      {
+        "effort": 0
+      },
+      {
+        "effort": 0
+      },
+      {
+        "effort": 0
+      },
+      {
+        "effort": 0
+      }
+    ]
+  }
+}
+

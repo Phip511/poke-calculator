@@ -1,13 +1,229 @@
-.notification {
-    background-color: red;
-    color: white;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-    animation: fade-out 3s forwards;
+/* Reset + base */
+* {
+    box-sizing: border-box;
 }
 
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #1f2937, #111827);
+    color: #f9fafb;
+}
+
+/* Main container */
+.app {
+    width: min(1200px, 94%);
+    margin: 24px auto;
+    padding: 24px;
+    background: #ffffff10;
+    border: 1px solid #ffffff22;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px #00000055;
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    font-size: 42px;
+    margin-bottom: 25px;
+}
+
+h2 {
+    margin-top: 0;
+    border-bottom: 2px solid #ffffff33;
+    padding-bottom: 6px;
+}
+
+h3 {
+    font-weight: normal;
+    color: #d1d5db;
+}
+
+/* Layout */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Card sections */
+.card {
+    background: #00000025;
+    border: 1px solid #ffffff22;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 25px #00000033;
+}
+
+/* Inputs + controls */
+label {
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+select,
+input,
+button {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    margin: 6px 0;
+    font-size: 15px;
+}
+
+select,
+input {
+    background: #f9fafb;
+    color: #111827;
+}
+
+button {
+    background: #ef4444;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+}
+
+button:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+/* Pokemon image */
+#pokemonImage {
+    display: block;
+    margin: 20px auto;
+    width: 160px;
+    height: 160px;
+    background: #ffffff18;
+    border-radius: 20px;
+    padding: 10px;
+    image-rendering: pixelated;
+}
+
+/* EV sections */
+#evGains {
+    margin-top: 10px;
+    line-height: 1.8;
+}
+
+/* EV rows */
+.ev-row {
+    display: grid;
+    grid-template-columns: 45px 70px 120px 60px 70px;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.ev-row progress {
+    width: 120px;
+    height: 16px;
+}
+
+.ev-row input {
+    width: 70px;
+    min-width: 70px;
+    text-align: center;
+}
+
+/* Hide number input arrows in Chrome/Safari/Edge */
+.ev-row input::-webkit-outer-spin-button,
+.ev-row input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide number input arrows in Firefox */
+.ev-row input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #374151;
+    border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+    background-color: #22c55e;
+    border-radius: 10px;
+}
+
+.ev-overflow {
+    color: #ef4444;
+    font-weight: bold;
+    text-shadow: 0 0 6px #ef4444;
+}
+
+/* Notification */
+.notification {
+    background-color: #ef4444;
+    color: white;
+    padding: 12px 16px;
+    margin: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    box-shadow: 0 10px 25px #00000055;
+    animation: fade-out 5s forwards;
+}
+
+#notification {
+    position: fixed;
+    top: 10%;
+    right: 16px;
+    z-index: 9999;
+    max-width: 320px;
+}
+
+/* Notification animation */
 @keyframes fade-out {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
+    0% { opacity: 1; transform: translateX(0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(20px); }
+}
+
+/* Responsive (mobile) */
+@media (max-width: 850px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ev-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+.total-ev-box {
+    margin: 15px 0;
+    padding: 12px;
+    background: #ffffff18;
+    border-radius: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.button-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.capped-stat {
+    color: #facc15;
+    text-shadow: 0 0 8px #facc15;
+}
+
+.ev-row.capped {
+    border: 1px solid #facc15;
+    border-radius: 12px;
+    padding: 6px;
+    background: #facc1520;
 }
