@@ -2,6 +2,7 @@
 EV Counter Web App — README
 
 Overview
+
 This is a browser-based Pokémon Effort Value (EV) training calculator built using HTML, CSS, and JavaScript with data from the PokéAPI. The app helps simulate EV training by allowing users to select a Pokémon, apply training modifiers, and track EV progress toward target values.
 
 ---
