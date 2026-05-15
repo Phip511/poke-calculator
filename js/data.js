@@ -17,6 +17,13 @@ const apiBase = "https://pokeapi.co/api/v2";
     - fetchPokemonForms()
     - setSelectedPokemon()
 */
+const EFFECTIVE_EV_CAP = 252;
+const HARD_EV_CAP = 255;
+const TOTAL_EV_CAP = 510;
+// caps for the EVs
+// EFFECTIVE_EV_CAP: 252 is the highest EV value that provides a stat increase.
+// HARD_EV_CAP: 255 is the absolute maximum EVs in a single stat
+// TOTAL_EV_CAP: 510 is the maximum total EVs across all stats for a single Pokémon.
 
 const EMPTY_EVS = {
   hp: 0,

@@ -119,12 +119,12 @@ function renderPokemonImage(data) {
 
 function syncCurrentEVsFromInputs() {
   currentEVs = {
-    hp: clampTarget(getEl("currentHp").value),
-    attack: clampTarget(getEl("currentAtk").value),
-    defense: clampTarget(getEl("currentDef").value),
-    specialAttack: clampTarget(getEl("currentSpa").value),
-    specialDefense: clampTarget(getEl("currentSpd").value),
-    speed: clampTarget(getEl("currentSpe").value),
+    hp: clampCurrentEV(getEl("currentHp").value),
+    attack: clampCurrentEV(getEl("currentAtk").value),
+    defense: clampCurrentEV(getEl("currentDef").value),
+    specialAttack: clampCurrentEV(getEl("currentSpa").value),
+    specialDefense: clampCurrentEV(getEl("currentSpd").value),
+    speed: clampCurrentEV(getEl("currentSpe").value),
   };
 
   updateCurrentEVsDisplay();
@@ -213,12 +213,32 @@ function updateEVRow(statKey, inputId, barId, currentValue, targetValue) {
   const rowElement = inputElement.closest(".ev-row");
 
   inputElement.value = currentValue;
-  barElement.value = currentValue;
 
-  const isCapped = currentValue >= targetValue && targetValue > 0;
+  // Bar fills based on the target value.
+  // Example: target 8, current 8 = full bar.
+  const barMax = targetValue > 0 ? targetValue : EFFECTIVE_EV_CAP;
 
-  inputElement.classList.toggle("capped-stat", isCapped);
-  rowElement.classList.toggle("capped", isCapped);
+  barElement.max = barMax;
+  barElement.value = Math.min(currentValue, barMax);
+
+  const isPastTarget = currentValue > targetValue && targetValue > 0;
+  const isTargetReached = currentValue >= targetValue && targetValue > 0;
+  const isEffectiveCapped = currentValue >= EFFECTIVE_EV_CAP && currentValue < HARD_EV_CAP;
+  const isHardCapped = currentValue >= HARD_EV_CAP;
+
+  // Red should win if the stat is past target OR at the hard 255 cap
+  const shouldBeRed = isPastTarget || isHardCapped;
+
+  // Gold only if target/useful cap reached, but NOT red
+  const shouldBeGold = !shouldBeRed && (isTargetReached || isEffectiveCapped);
+
+  inputElement.classList.toggle("capped-stat", shouldBeGold);
+  rowElement.classList.toggle("capped", shouldBeGold);
+  barElement.classList.toggle("capped-bar", shouldBeGold);
+
+  inputElement.classList.toggle("hard-capped-stat", shouldBeRed);
+  rowElement.classList.toggle("hard-capped", shouldBeRed);
+  barElement.classList.toggle("hard-capped-bar", shouldBeRed);
 }
 /*
 1) A helper function for rendering one EV row

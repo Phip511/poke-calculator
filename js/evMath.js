@@ -24,6 +24,16 @@ function getTotalEVs() {
     - updateCurrentEVsDisplay()
     - allocateEVs()
 */
+function clampCurrentEV(value) {
+    const parsed = Number.parseInt(value, 10);
+
+    if (Number.isNaN(parsed)) {
+      return 0;
+    }
+    
+    return Math.min(Math.max(parsed, 0), HARD_EV_CAP);
+}
+
 
 function clampTarget(value) {
   const parsed = Number.parseInt(value, 10);
@@ -32,7 +42,7 @@ function clampTarget(value) {
     return 0;
   }
 
-  return Math.min(Math.max(parsed, 0), 252);
+  return Math.min(Math.max(parsed, 0), EFFECTIVE_EV_CAP);
 }
 /*
 1) A validation/sanitization helper function
@@ -132,15 +142,16 @@ function allocateEVs() {
 
   for (const stat in evGains) {
     const gain = evGains[stat];
-    const target = targets[stat];
 
     if (gain <= 0) {
       continue;
     }
 
+    const target = targets[stat];
     const currentStatValue = currentEVs[stat];
-    const remainingStatEVs = target - currentStatValue;
-    const remainingTotalEVs = 510 - getTotalEVs();
+
+    const remainingStatEVs = HARD_EV_CAP - currentStatValue;
+    const remainingTotalEVs = TOTAL_EV_CAP - getTotalEVs();
 
     if (remainingTotalEVs <= 0) {
       showNotification("Total EV limit of 510 has been reached.");
@@ -148,17 +159,20 @@ function allocateEVs() {
     }
 
     if (remainingStatEVs <= 0) {
+      showNotification(`${formatName(stat)} cannot exceed ${HARD_EV_CAP} EVs!`);
       continue;
     }
 
-    const amountToAdd = Math.min(gain, remainingStatEVs, remainingTotalEVs);
-    const newStatValue = currentStatValue + amountToAdd;
-
-    currentEVs[stat] = newStatValue;
-
-    if (newStatValue === target) {
-      showNotification(`${formatName(stat)} has reached its goal!`);
+    if (currentStatValue < target && currentStatValue + gain >= target) {
+      showNotification(`${formatName(stat)} will reach its useful EV target next!`);
     }
+
+    if (currentStatValue + gain > HARD_EV_CAP) {
+      showNotification(`${formatName(stat)} cannot exceed ${HARD_EV_CAP} EVs!`);
+    }
+
+    const amountToAdd = Math.min(gain, remainingStatEVs, remainingTotalEVs);
+    currentEVs[stat] = currentStatValue + amountToAdd;
   }
 
   updateCurrentEVsDisplay();

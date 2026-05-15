@@ -129,6 +129,34 @@ button:hover {
     min-width: 70px;
     text-align: center;
 }
+/* Normal progress bar */
+.ev-row progress::-webkit-progress-value {
+    background-color: #22c55e;
+    border-radius: 10px;
+}
+
+/* Gold progress bar */
+.ev-row progress.capped-bar::-webkit-progress-value {
+    background-color: #facc15;
+}
+
+/* Red progress bar — must come after gold */
+.ev-row progress.hard-capped-bar::-webkit-progress-value {
+    background-color: #ef4444;
+}
+
+/* Firefox support */
+.ev-row progress {
+    accent-color: #22c55e;
+}
+
+.ev-row progress.capped-bar {
+    accent-color: #facc15;
+}
+
+.ev-row progress.hard-capped-bar {
+    accent-color: #ef4444;
+}
 
 /* Hide number input arrows in Chrome/Safari/Edge */
 .ev-row input::-webkit-outer-spin-button,
