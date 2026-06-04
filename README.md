@@ -197,7 +197,12 @@ Future Improvements
 * Improved UI feedback for overflow conditions
 * Shiny sprite toggle
 * Admin UI for adding/editing local Pokémon records
-
+* Map builder to keep track of what pokemon are where (similar to pokenav for ORAS)
+* Game-based maps styled similarly to HGSS and BW maps for each game
+* Game-based maps will be able to be searched for most effective EV training spots (isolated stats vs. highest amount)
+* Shiny hunting mode (counter system)
+* Shiny hunting mode will be game based and have methods appropriate for each game (breeding, soft-resetting, etc.)
+* Programmable button for allocating / adding 1 to various counters (shiny hunting mode, ev allocating)
 ---
 
 Credits
