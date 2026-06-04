@@ -45,6 +45,7 @@ function resetEVs() {
   currentEVs = { ...EMPTY_EVS };
   updateCurrentEVsDisplay();
   updateEVGainsDisplay();
+  autosaveActiveSpread();
   showNotification("EVs have been reset.");
 }
 /*
@@ -162,22 +163,32 @@ function setupEventListeners() {
   getEl("searchButton").onclick = searchPokemon;
   getEl("allocateButton").onclick = allocateEVs;
   getEl("resetButton").onclick = resetEVs;
-  getEl("saveSpreadButton").onclick = saveCurrentSpread;
-  getEl("loadSpreadButton").onclick = loadSelectedSpread;
+  getEl("savedSpreadsToggle").onclick = toggleSavedSpreadsPanel;
+  getEl("addSpreadButton").onclick = createCurrentSpread;
   getEl("deleteSpreadButton").onclick = deleteSelectedSpread;
-  getEl("savedSpreadList").onchange = syncSpreadNameFromSelection;
+  getEl("savedSpreadList").onchange = loadSelectedSpread;
 
-  getEl("heldItem").onchange = refreshModifiedEVGains;
-  getEl("pokerus").onchange = refreshModifiedEVGains;
+  getEl("heldItem").onchange = () => {
+    refreshModifiedEVGains();
+    autosaveActiveSpread();
+  };
+  getEl("pokerus").onchange = () => {
+    refreshModifiedEVGains();
+    autosaveActiveSpread();
+  };
 
   ["currentHp", "currentAtk", "currentDef", "currentSpa", "currentSpd", "currentSpe"].forEach(id => {
-    getEl(id).onchange = syncCurrentEVsFromInputs;
+    getEl(id).onchange = () => {
+      syncCurrentEVsFromInputs();
+      autosaveActiveSpread();
+    };
   });
 
   ["targetHp", "targetAtk", "targetDef", "targetSpa", "targetSpd", "targetSpe"].forEach(id => {
     getEl(id).onchange = () => {
       updateCurrentEVsDisplay();
       updateEVGainsDisplay();
+      autosaveActiveSpread();
     };
   });
 
@@ -187,12 +198,14 @@ function setupEventListeners() {
     }
   });
 
-  getEl("trainingGen").onchange = () => {
+  getEl("trainingGen").onchange = async () => {
     if (selectedPokemon) {
-      setSelectedPokemon(selectedPokemon, false);
+      await setSelectedPokemon(selectedPokemon, false);
     } else {
       refreshModifiedEVGains();
     }
+
+    autosaveActiveSpread();
   };
 }
 /*

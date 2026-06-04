@@ -177,6 +177,7 @@ function allocateEVs() {
 
   updateCurrentEVsDisplay();
   updateEVGainsDisplay();
+  autosaveActiveSpread();
 }
 /*
 1)  core business-logic / controller function

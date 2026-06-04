@@ -11,6 +11,28 @@
     <main class="app">
         <h1>EV Counter</h1>
 
+        <div class="saved-spreads">
+            <button id="savedSpreadsToggle" class="saved-spreads-toggle" type="button" aria-expanded="false" aria-controls="savedSpreadsPanel">
+                Saved Spreads
+                <span id="activeSpreadLabel">None selected</span>
+            </button>
+
+            <div id="savedSpreadsPanel" class="saved-spreads-panel" hidden>
+                <div class="spread-row">
+                    <label for="savedSpreadList">Load</label>
+                    <select id="savedSpreadList"></select>
+                </div>
+
+                <div class="spread-row spread-create-row">
+                    <label for="spreadName">New</label>
+                    <input id="spreadName" type="text" placeholder="ex: Garchomp Atk/Spe">
+                    <button id="addSpreadButton" type="button">Add</button>
+                </div>
+
+                <button id="deleteSpreadButton" class="spread-delete-button" type="button">Delete Selected</button>
+            </div>
+        </div>
+
         <div class="layout">
             <!-- LEFT COLUMN -->
             <section class="card">
@@ -69,24 +91,6 @@
                 
                 <div class="total-ev-box">
                     Total EVs: <span id="totalEVs">0</span> / 510
-                </div>
-
-                <h2>Saved Spreads</h2>
-
-                <div class="control-group spread-controls">
-                    <label for="spreadName">Name:</label>
-                    <input id="spreadName" type="text" placeholder="ex: Garchomp Atk/Spe">
-                </div>
-
-                <div class="control-group spread-controls">
-                    <label for="savedSpreadList">Saved:</label>
-                    <select id="savedSpreadList"></select>
-                </div>
-
-                <div class="button-row spread-actions">
-                    <button id="saveSpreadButton" type="button">Save Spread</button>
-                    <button id="loadSpreadButton" type="button">Load Spread</button>
-                    <button id="deleteSpreadButton" type="button">Delete Spread</button>
                 </div>
 
                 <h2>Training Modifiers</h2>

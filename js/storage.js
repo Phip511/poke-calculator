@@ -1,5 +1,8 @@
 // localStorage save/load helpers for EV training sessions
 
+let activeSpreadId = "";
+let isLoadingSavedSpread = false;
+
 function getSavedSpreads() {
   try {
     const rawSpreads = localStorage.getItem(STORAGE_KEY);
@@ -38,9 +41,9 @@ function getDefaultSpreadName() {
   return `${pokemonLabel} Spread`;
 }
 
-function saveCurrentSpread() {
+function createCurrentSpread() {
   if (!selectedPokemon) {
-    showNotification("Select a Pokemon before saving.");
+    showNotification("Select a Pokemon before adding a spread.");
     return;
   }
 
@@ -48,22 +51,15 @@ function saveCurrentSpread() {
 
   const spreadName = getSpreadNameInputValue() || getDefaultSpreadName();
   const spreads = getSavedSpreads();
-  const existingSpreadId = getEl("savedSpreadList").value;
   const snapshot = buildSpreadSnapshot(spreadName);
 
-  const existingIndex = spreads.findIndex(spread => spread.id === existingSpreadId);
-
-  if (existingIndex >= 0) {
-    snapshot.id = existingSpreadId;
-    spreads[existingIndex] = snapshot;
-  } else {
-    spreads.push(snapshot);
-  }
-
+  spreads.push(snapshot);
   setSavedSpreads(spreads);
+  activeSpreadId = snapshot.id;
   updateSavedSpreadList(snapshot.id);
   getEl("spreadName").value = spreadName;
-  showNotification("EV spread saved.");
+  updateActiveSpreadLabel();
+  showNotification("EV spread added.");
 }
 
 function applyTargetEVs(targetEVs) {
@@ -91,24 +87,33 @@ async function loadSelectedSpread() {
   const spread = getSavedSpreads().find(savedSpread => savedSpread.id === spreadId);
 
   if (!spread) {
-    showNotification("Choose a saved spread to load.");
+    activeSpreadId = "";
+    updateActiveSpreadLabel();
     return;
   }
 
-  getEl("trainingGen").value = spread.trainingGen || "current";
-  getEl("heldItem").value = spread.heldItem || "none";
-  getEl("pokerus").checked = Boolean(spread.hasPokerus);
+  isLoadingSavedSpread = true;
 
-  await setSelectedPokemon(spread.pokemonName, true);
+  try {
+    activeSpreadId = spread.id;
+    getEl("trainingGen").value = spread.trainingGen || "current";
+    getEl("heldItem").value = spread.heldItem || "none";
+    getEl("pokerus").checked = Boolean(spread.hasPokerus);
 
-  applyTargetEVs(spread.targetEVs || EMPTY_EVS);
-  applyCurrentEVs(spread.currentEVs || EMPTY_EVS);
-  refreshModifiedEVGains();
-  updateCurrentEVsDisplay();
-  updateEVGainsDisplay();
+    await setSelectedPokemon(spread.pokemonName, true);
 
-  getEl("spreadName").value = spread.name;
-  showNotification(`Loaded ${spread.name}.`);
+    applyTargetEVs(spread.targetEVs || EMPTY_EVS);
+    applyCurrentEVs(spread.currentEVs || EMPTY_EVS);
+    refreshModifiedEVGains();
+    updateCurrentEVsDisplay();
+    updateEVGainsDisplay();
+
+    getEl("spreadName").value = spread.name;
+    updateActiveSpreadLabel();
+    showNotification(`Loaded ${spread.name}.`);
+  } finally {
+    isLoadingSavedSpread = false;
+  }
 }
 
 function deleteSelectedSpread() {
@@ -124,9 +129,41 @@ function deleteSelectedSpread() {
   const remainingSpreads = spreads.filter(spread => spread.id !== spreadId);
 
   setSavedSpreads(remainingSpreads);
+  if (activeSpreadId === spreadId) {
+    activeSpreadId = "";
+  }
+
   updateSavedSpreadList();
   getEl("spreadName").value = "";
+  updateActiveSpreadLabel();
   showNotification(`${spreadToDelete?.name || "Spread"} deleted.`);
+}
+
+function autosaveActiveSpread() {
+  if (!activeSpreadId || isLoadingSavedSpread || !selectedPokemon) {
+    return;
+  }
+
+  const spreads = getSavedSpreads();
+  const existingIndex = spreads.findIndex(spread => spread.id === activeSpreadId);
+
+  if (existingIndex < 0) {
+    activeSpreadId = "";
+    updateSavedSpreadList();
+    updateActiveSpreadLabel();
+    return;
+  }
+
+  const existingSpread = spreads[existingIndex];
+  const snapshot = buildSpreadSnapshot(existingSpread.name);
+
+  snapshot.id = existingSpread.id;
+  snapshot.savedAt = new Date().toISOString();
+  spreads[existingIndex] = snapshot;
+
+  setSavedSpreads(spreads);
+  updateSavedSpreadList(activeSpreadId);
+  updateActiveSpreadLabel();
 }
 
 function updateSavedSpreadList(selectedSpreadId = "") {
@@ -150,10 +187,21 @@ function updateSavedSpreadList(selectedSpreadId = "") {
   });
 
   spreadList.value = selectedSpreadId;
+  updateActiveSpreadLabel();
 }
 
-function syncSpreadNameFromSelection() {
-  const spreadId = getEl("savedSpreadList").value;
-  const spread = getSavedSpreads().find(savedSpread => savedSpread.id === spreadId);
-  getEl("spreadName").value = spread ? spread.name : "";
+function updateActiveSpreadLabel() {
+  const activeSpread = getSavedSpreads().find(spread => spread.id === activeSpreadId);
+  getEl("activeSpreadLabel").textContent = activeSpread
+    ? `Active: ${activeSpread.name}`
+    : "None selected";
+}
+
+function toggleSavedSpreadsPanel() {
+  const toggle = getEl("savedSpreadsToggle");
+  const panel = getEl("savedSpreadsPanel");
+  const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+  toggle.setAttribute("aria-expanded", String(!isExpanded));
+  panel.hidden = isExpanded;
 }
