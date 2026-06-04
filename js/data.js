@@ -67,6 +67,10 @@ const evYieldOverrides = {
 
   gen5: {
     "shaymin-sky": { hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 3 },
+  },
+
+  blackWhite: {
+    "shaymin-sky": { hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 3 },
     watchog: { hp: 0, attack: 1, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0 },
   },
 
@@ -86,6 +90,33 @@ const evYieldOverrides = {
 3) Functions:
     - Directly: applyEVOverrideIfNeeded()
     - Indirectly: applyPokemonData()
+*/
+
+const trainingGameSettings = {
+  current: { label: "Modern", overrideKey: "current", powerItemGeneration: "current" },
+  rubySapphire: { label: "Ruby / Sapphire", overrideKey: "gen3", powerItemGeneration: "gen3" },
+  emerald: { label: "Emerald", overrideKey: "gen3", powerItemGeneration: "gen3" },
+  fireRedLeafGreen: { label: "FireRed / LeafGreen", overrideKey: "gen3", powerItemGeneration: "gen3" },
+  diamondPearl: { label: "Diamond / Pearl", overrideKey: "gen4", powerItemGeneration: "gen4" },
+  platinum: { label: "Platinum", overrideKey: "gen4", powerItemGeneration: "gen4" },
+  heartGoldSoulSilver: { label: "HeartGold / SoulSilver", overrideKey: "gen4", powerItemGeneration: "gen4" },
+  blackWhite: { label: "Black / White", overrideKey: "blackWhite", powerItemGeneration: "gen5" },
+  black2White2: { label: "Black 2 / White 2", overrideKey: "gen5", powerItemGeneration: "gen5" },
+  xY: { label: "X / Y", overrideKey: "gen6", powerItemGeneration: "gen6" },
+  omegaRubyAlphaSapphire: { label: "Omega Ruby / Alpha Sapphire", overrideKey: "gen6", powerItemGeneration: "gen6" },
+  sunMoon: { label: "Sun / Moon", overrideKey: "gen7", powerItemGeneration: "gen7" },
+  ultraSunUltraMoon: { label: "Ultra Sun / Ultra Moon", overrideKey: "gen7", powerItemGeneration: "gen7" },
+  swordShield: { label: "Sword / Shield", overrideKey: "current", powerItemGeneration: "current" },
+  brilliantDiamondShiningPearl: { label: "Brilliant Diamond / Shining Pearl", overrideKey: "current", powerItemGeneration: "current" },
+  scarletViolet: { label: "Scarlet / Violet", overrideKey: "current", powerItemGeneration: "current" },
+};
+/*
+1) A local mapping from user-facing training games to EV override and item-rule buckets.
+2) Keeps game-specific UI while reusing the historical EV data already encoded above.
+3) Functions:
+    - getSelectedTrainingGameSetting()
+    - applyEVOverrideIfNeeded()
+    - calculateModifiedEVGains()
 */
 
 const defaultFormNames = {

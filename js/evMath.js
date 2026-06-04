@@ -52,17 +52,22 @@ function clampTarget(value) {
     - syncCurrentEVsFromInputs()
 */
 
-function applyEVOverrideIfNeeded(pokemonName, defaultEVs) {
-  const trainingGen = getEl("trainingGen").value;
+function getSelectedTrainingGameSetting() {
+  const trainingGame = getEl("trainingGame").value;
+  return trainingGameSettings[trainingGame] || trainingGameSettings.current;
+}
 
-  if (trainingGen === "current") {
+function applyEVOverrideIfNeeded(pokemonName, defaultEVs) {
+  const { overrideKey } = getSelectedTrainingGameSetting();
+
+  if (overrideKey === "current") {
     return defaultEVs;
   }
 
-  return evYieldOverrides[trainingGen]?.[pokemonName] || defaultEVs;
+  return evYieldOverrides[overrideKey]?.[pokemonName] || defaultEVs;
 }
 /*
-1) A generation correction / override function
+1) A game correction / override function
 2) Applies historical EV yield changes. EX: Roselia Gen 3 != Roselia modern EVs
 3) Directly used by:
     - applyPokemonData()
@@ -71,7 +76,7 @@ function applyEVOverrideIfNeeded(pokemonName, defaultEVs) {
 function calculateModifiedEVGains(baseGains) {
   const heldItem = getEl("heldItem").value;
   const hasPokerus = getEl("pokerus").checked;
-  const trainingGen = getEl("trainingGen").value;
+  const { powerItemGeneration } = getSelectedTrainingGameSetting();
 
   let modified = { ...baseGains };
 
@@ -93,7 +98,7 @@ function calculateModifiedEVGains(baseGains) {
   }
 
   if (powerItemStat) {
-    modified[powerItemStat] += getPowerItemBonusByGeneration(trainingGen);
+    modified[powerItemStat] += getPowerItemBonusByGeneration(powerItemGeneration);
   }
 
   if (hasPokerus) {
@@ -112,16 +117,16 @@ function calculateModifiedEVGains(baseGains) {
     - refreshModifiedEVGains()
 */
 
-function getPowerItemBonusByGeneration(trainingGen) {
+function getPowerItemBonusByGeneration(powerItemGeneration) {
   if (
-    trainingGen === "gen4" ||
-    trainingGen === "gen5" ||
-    trainingGen === "gen6"
+    powerItemGeneration === "gen4" ||
+    powerItemGeneration === "gen5" ||
+    powerItemGeneration === "gen6"
   ) {
     return 4;
   }
 
-  if (trainingGen === "gen7" || trainingGen === "current") {
+  if (powerItemGeneration === "gen7" || powerItemGeneration === "current") {
     return 8;
   }
 

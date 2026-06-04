@@ -95,7 +95,7 @@ Features
 2. EV Gains Display
 
 * Shows EV yield for the selected Pokémon
-* Applies generation-specific EV overrides where applicable
+* Applies game-specific EV overrides where applicable
 * Updates dynamically with training modifiers
 
 3. Training Modifiers
@@ -177,7 +177,7 @@ Important Notes
 * EV gains are per battle, not cumulative
 * Power items affect only one stat but still allow base EV gains in others
 * Pokérus doubles the final EV gain after item bonuses
-* Some Pokémon have different EV yields depending on generation or form
+* Some Pokémon have different EV yields depending on game or form
 
 ---
 
@@ -197,7 +197,6 @@ Future Improvements
 * Improved UI feedback for overflow conditions
 * Shiny sprite toggle
 * Admin UI for adding/editing local Pokémon records
-* Per-game EV yield storage instead of only generation-level overrides
 
 ---
 

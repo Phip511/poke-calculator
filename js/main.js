@@ -38,7 +38,7 @@ function refreshModifiedEVGains() {
 2) Recalculates modified EV gains after changes to modifiers (like Pokerus or Power Items) and updates the display.
 3) Directly used by:
     - setupEventListeners()
-    - trainingGen.onchange
+    - trainingGame.onchange
 */
 
 function resetEVs() {
@@ -198,7 +198,7 @@ function setupEventListeners() {
     }
   });
 
-  getEl("trainingGen").onchange = async () => {
+  getEl("trainingGame").onchange = async () => {
     if (selectedPokemon) {
       await setSelectedPokemon(selectedPokemon, false);
     } else {

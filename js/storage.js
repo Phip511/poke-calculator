@@ -25,7 +25,7 @@ function buildSpreadSnapshot(name) {
     speciesName: selectedSpecies,
     currentEVs: { ...currentEVs },
     targetEVs: getTargets(),
-    trainingGen: getEl("trainingGen").value,
+    trainingGame: getEl("trainingGame").value,
     heldItem: getEl("heldItem").value,
     hasPokerus: getEl("pokerus").checked,
     savedAt: new Date().toISOString(),
@@ -96,7 +96,7 @@ async function loadSelectedSpread() {
 
   try {
     activeSpreadId = spread.id;
-    getEl("trainingGen").value = spread.trainingGen || "current";
+    getEl("trainingGame").value = getSavedSpreadTrainingGame(spread);
     getEl("heldItem").value = spread.heldItem || "none";
     getEl("pokerus").checked = Boolean(spread.hasPokerus);
 
@@ -195,6 +195,23 @@ function updateActiveSpreadLabel() {
   getEl("activeSpreadLabel").textContent = activeSpread
     ? `Active: ${activeSpread.name}`
     : "None selected";
+}
+
+function getSavedSpreadTrainingGame(spread) {
+  if (trainingGameSettings[spread.trainingGame]) {
+    return spread.trainingGame;
+  }
+
+  const legacyTrainingGenMap = {
+    current: "current",
+    gen3: "rubySapphire",
+    gen4: "diamondPearl",
+    gen5: "blackWhite",
+    gen6: "xY",
+    gen7: "sunMoon",
+  };
+
+  return legacyTrainingGenMap[spread.trainingGen] || "current";
 }
 
 function toggleSavedSpreadsPanel() {
