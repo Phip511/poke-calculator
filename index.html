@@ -71,6 +71,24 @@
                     Total EVs: <span id="totalEVs">0</span> / 510
                 </div>
 
+                <h2>Saved Spreads</h2>
+
+                <div class="control-group spread-controls">
+                    <label for="spreadName">Name:</label>
+                    <input id="spreadName" type="text" placeholder="ex: Garchomp Atk/Spe">
+                </div>
+
+                <div class="control-group spread-controls">
+                    <label for="savedSpreadList">Saved:</label>
+                    <select id="savedSpreadList"></select>
+                </div>
+
+                <div class="button-row spread-actions">
+                    <button id="saveSpreadButton" type="button">Save Spread</button>
+                    <button id="loadSpreadButton" type="button">Load Spread</button>
+                    <button id="deleteSpreadButton" type="button">Delete Spread</button>
+                </div>
+
                 <h2>Training Modifiers</h2>
 
                 <div class="control-group">
@@ -163,6 +181,7 @@
     <script src="js/ui.js"></script>
     <script src="js/api.js"></script>
     <script src="js/evMath.js"></script>
+    <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

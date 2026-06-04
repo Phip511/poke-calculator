@@ -162,12 +162,23 @@ function setupEventListeners() {
   getEl("searchButton").onclick = searchPokemon;
   getEl("allocateButton").onclick = allocateEVs;
   getEl("resetButton").onclick = resetEVs;
+  getEl("saveSpreadButton").onclick = saveCurrentSpread;
+  getEl("loadSpreadButton").onclick = loadSelectedSpread;
+  getEl("deleteSpreadButton").onclick = deleteSelectedSpread;
+  getEl("savedSpreadList").onchange = syncSpreadNameFromSelection;
 
   getEl("heldItem").onchange = refreshModifiedEVGains;
   getEl("pokerus").onchange = refreshModifiedEVGains;
 
   ["currentHp", "currentAtk", "currentDef", "currentSpa", "currentSpd", "currentSpe"].forEach(id => {
     getEl(id).onchange = syncCurrentEVsFromInputs;
+  });
+
+  ["targetHp", "targetAtk", "targetDef", "targetSpa", "targetSpd", "targetSpe"].forEach(id => {
+    getEl(id).onchange = () => {
+      updateCurrentEVsDisplay();
+      updateEVGainsDisplay();
+    };
   });
 
   getEl("pokemonSearch").addEventListener("keydown", event => {
@@ -203,6 +214,7 @@ function setupEventListeners() {
 */
 
 setupEventListeners();
+updateSavedSpreadList();
 fetchGenerations();
 updateCurrentEVsDisplay();
 updateEVGainsDisplay();

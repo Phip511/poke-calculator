@@ -17,6 +17,9 @@ const apiBase = "/api/v2";
     - fetchPokemonForms()
     - setSelectedPokemon()
 */
+const STORAGE_KEY = "pokemonEvCalculator.savedSpreads";
+// localStorage key for saved EV training sessions.
+
 const EFFECTIVE_EV_CAP = 252;
 const HARD_EV_CAP = 255;
 const TOTAL_EV_CAP = 510;

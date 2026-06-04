@@ -192,7 +192,6 @@ Known Limitations
 
 Future Improvements
 
-* Save/load EV spreads (localStorage)
 * Remaining EV / battles needed display
 * Smarter notifications (non-repeating, inline warnings)
 * Improved UI feedback for overflow conditions

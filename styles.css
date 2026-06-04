@@ -244,6 +244,23 @@ progress::-webkit-progress-value {
     margin-top: 18px;
 }
 
+.spread-controls {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+}
+
+.spread-controls input,
+.spread-controls select {
+    width: 100%;
+}
+
+.spread-actions {
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
 .capped-stat {
     color: #facc15;
     text-shadow: 0 0 8px #facc15;
