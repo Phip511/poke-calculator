@@ -1,0 +1,13 @@
+{
+  "name": "pokemon-ev-calculator",
+  "version": "1.0.0",
+  "description": "Local-first Pokemon EV calculator.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "seed:db": "node scripts/seed-pokemon-db.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "name": "generation-i",
+      "url": "/api/v2/generation/generation-i"
+    }
+  ]
+}

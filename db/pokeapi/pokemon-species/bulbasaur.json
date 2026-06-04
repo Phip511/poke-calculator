@@ -1,0 +1,17 @@
+{
+  "id": 1,
+  "name": "bulbasaur",
+  "generation": {
+    "name": "generation-i",
+    "url": "/api/v2/generation/generation-i"
+  },
+  "varieties": [
+    {
+      "is_default": true,
+      "pokemon": {
+        "name": "bulbasaur",
+        "url": "/api/v2/pokemon/bulbasaur"
+      }
+    }
+  ]
+}

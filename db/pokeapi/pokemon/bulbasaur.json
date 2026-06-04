@@ -1,0 +1,54 @@
+{
+  "id": 1,
+  "name": "bulbasaur",
+  "species": {
+    "name": "bulbasaur",
+    "url": "/api/v2/pokemon-species/bulbasaur"
+  },
+  "sprites": {
+    "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+    "other": {
+      "official-artwork": {
+        "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
+      }
+    }
+  },
+  "stats": [
+    {
+      "effort": 0,
+      "stat": {
+        "name": "hp"
+      }
+    },
+    {
+      "effort": 0,
+      "stat": {
+        "name": "attack"
+      }
+    },
+    {
+      "effort": 0,
+      "stat": {
+        "name": "defense"
+      }
+    },
+    {
+      "effort": 1,
+      "stat": {
+        "name": "special-attack"
+      }
+    },
+    {
+      "effort": 0,
+      "stat": {
+        "name": "special-defense"
+      }
+    },
+    {
+      "effort": 0,
+      "stat": {
+        "name": "speed"
+      }
+    }
+  ]
+}

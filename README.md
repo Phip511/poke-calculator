@@ -3,7 +3,81 @@ EV Counter Web App — README
 
 Overview
 
-This is a browser-based Pokémon Effort Value (EV) training calculator built using HTML, CSS, and JavaScript with data from the PokéAPI. The app helps simulate EV training by allowing users to select a Pokémon, apply training modifiers, and track EV progress toward target values.
+This is a browser-based Pokémon Effort Value (EV) training calculator built using HTML, CSS, and JavaScript. Runtime Pokémon data is served by a local Node API backed by JSON files in `db/pokeapi`; the database can be generated from PokéAPI with the included seed script. The app helps simulate EV training by allowing users to select a Pokémon, apply training modifiers, and track EV progress toward target values.
+
+---
+
+Local Development
+
+1. Start the local app/API server
+
+   ```bash
+   npm start
+   ```
+
+2. Open the app
+
+   ```text
+   http://localhost:3000
+   ```
+
+3. Build or refresh the local Pokémon database from PokéAPI
+
+   ```bash
+   npm run seed:db
+   ```
+
+The repository includes a tiny starter database containing Bulbasaur so the server can boot immediately. Run `npm run seed:db` to populate the full local dataset.
+
+---
+
+Local API
+
+The frontend now calls the local API at `/api/v2` instead of calling PokéAPI directly.
+
+Implemented compatibility routes:
+
+* `GET /api/v2/generation/`
+* `GET /api/v2/generation/:nameOrId`
+* `GET /api/v2/pokemon-species/:name`
+* `GET /api/v2/pokemon/:name`
+
+Local insertion route:
+
+* `POST /api/admin/pokemon`
+
+Expected JSON shape:
+
+```json
+{
+  "generationName": "generation-i",
+  "species": {
+    "name": "custom-species",
+    "generation": { "name": "generation-i", "url": "/api/v2/generation/generation-i" },
+    "varieties": [
+      {
+        "is_default": true,
+        "pokemon": { "name": "custom-pokemon", "url": "/api/v2/pokemon/custom-pokemon" }
+      }
+    ]
+  },
+  "pokemon": {
+    "name": "custom-pokemon",
+    "species": { "name": "custom-species", "url": "/api/v2/pokemon-species/custom-species" },
+    "sprites": { "front_default": "" },
+    "stats": [
+      { "effort": 0, "stat": { "name": "hp" } },
+      { "effort": 0, "stat": { "name": "attack" } },
+      { "effort": 0, "stat": { "name": "defense" } },
+      { "effort": 1, "stat": { "name": "special-attack" } },
+      { "effort": 0, "stat": { "name": "special-defense" } },
+      { "effort": 0, "stat": { "name": "speed" } }
+    ]
+  }
+}
+```
+
+This route is intentionally simple for now. It gives the project a clean local data-writing path without adding a full admin UI yet.
 
 ---
 
@@ -121,12 +195,14 @@ Future Improvements
 * Smarter notifications (non-repeating, inline warnings)
 * Improved UI feedback for overflow conditions
 * Shiny sprite toggle
+* Admin UI for adding/editing local Pokémon records
+* Per-game EV yield storage instead of only generation-level overrides
 
 ---
 
 Credits
 
-* Pokémon data provided by PokéAPI
+* Pokémon seed data provided by PokéAPI
   https://pokeapi.co/
 
 ---

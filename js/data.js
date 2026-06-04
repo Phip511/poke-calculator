@@ -7,10 +7,10 @@ Format for comments:
 */
 
 
-const apiBase = "https://pokeapi.co/api/v2";
+const apiBase = "/api/v2";
 /*
-1) A constant string storing the root URL for the PokéAPI.
-2) Prevents repeating: "https://pokeapi.co/api/v2" everywhere in fetch calls. Makes changing API source easier later.
+1) A constant string storing the root URL for the local Pokémon API.
+2) Prevents repeating: "/api/v2" everywhere in fetch calls. Keeps the frontend pointed at the local data server.
 3) Functions:
     - fetchGenerations()
     - fetchPokemonByGeneration()
