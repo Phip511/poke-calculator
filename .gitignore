@@ -20,3 +20,7 @@ Thumbs.db
 node_modules/
 dist/
 build/
+
+# Generated local PokeAPI cache.
+# The committed boot sample lives in db/sample-pokeapi instead.
+db/pokeapi/

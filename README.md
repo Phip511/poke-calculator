@@ -27,7 +27,9 @@ Local Development
    npm run seed:db
    ```
 
-The repository includes a tiny starter database containing Bulbasaur so the server can boot immediately. Run `npm run seed:db` to populate the full local dataset.
+The repository includes a tiny starter database containing Bulbasaur in `db/sample-pokeapi` so the server can boot immediately. Run `npm run seed:db` to populate the full local dataset in `db/pokeapi`.
+
+`db/pokeapi` is ignored by Git because it is generated data. The server uses `db/pokeapi` when it exists and falls back to `db/sample-pokeapi` otherwise.
 
 ---
 

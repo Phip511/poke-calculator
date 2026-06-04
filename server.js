@@ -5,7 +5,9 @@ const { URL } = require("node:url");
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT_DIR = __dirname;
-const DB_DIR = path.join(ROOT_DIR, "db", "pokeapi");
+const GENERATED_DB_DIR = path.join(ROOT_DIR, "db", "pokeapi");
+const SAMPLE_DB_DIR = path.join(ROOT_DIR, "db", "sample-pokeapi");
+let activeDbDir = null;
 
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -37,6 +39,25 @@ function slugFromUrlOrName(value) {
 async function readJson(filePath) {
   const text = await fs.readFile(filePath, "utf8");
   return JSON.parse(text);
+}
+
+async function pathExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function getDbDir() {
+  if (activeDbDir) {
+    return activeDbDir;
+  }
+
+  const generatedIndexPath = path.join(GENERATED_DB_DIR, "generations.json");
+  activeDbDir = await pathExists(generatedIndexPath) ? GENERATED_DB_DIR : SAMPLE_DB_DIR;
+  return activeDbDir;
 }
 
 async function writeJson(filePath, data) {
@@ -97,7 +118,8 @@ function rewriteGeneration(req, generationData) {
 }
 
 async function loadGenerationBySlug(slug) {
-  const generations = await readJson(path.join(DB_DIR, "generations.json"));
+  const dbDir = await getDbDir();
+  const generations = await readJson(path.join(dbDir, "generations.json"));
   const generation = generations.results.find(entry =>
     entry.name === slug || String(entry.id) === slug || slugFromUrlOrName(entry.url) === slug
   );
@@ -106,7 +128,7 @@ async function loadGenerationBySlug(slug) {
     return null;
   }
 
-  return readJson(path.join(DB_DIR, "generation", `${generation.name}.json`));
+  return readJson(path.join(dbDir, "generation", `${generation.name}.json`));
 }
 
 async function parseJsonBody(req) {
@@ -125,7 +147,8 @@ async function parseJsonBody(req) {
 
 async function handleApi(req, res, pathname) {
   if (pathname === "/api/v2/generation/") {
-    const generations = await readJson(path.join(DB_DIR, "generations.json"));
+    const dbDir = await getDbDir();
+    const generations = await readJson(path.join(dbDir, "generations.json"));
     sendJson(res, 200, {
       ...generations,
       results: generations.results.map(generation => ({
@@ -152,7 +175,8 @@ async function handleApi(req, res, pathname) {
   const speciesMatch = pathname.match(/^\/api\/v2\/pokemon-species\/([^/]+)\/?$/);
   if (speciesMatch) {
     const speciesName = decodeURIComponent(speciesMatch[1]);
-    const species = await readJson(path.join(DB_DIR, "pokemon-species", `${speciesName}.json`));
+    const dbDir = await getDbDir();
+    const species = await readJson(path.join(dbDir, "pokemon-species", `${speciesName}.json`));
     sendJson(res, 200, rewriteSpecies(req, species));
     return;
   }
@@ -160,7 +184,8 @@ async function handleApi(req, res, pathname) {
   const pokemonMatch = pathname.match(/^\/api\/v2\/pokemon\/([^/]+)\/?$/);
   if (pokemonMatch) {
     const pokemonName = decodeURIComponent(pokemonMatch[1]);
-    const pokemon = await readJson(path.join(DB_DIR, "pokemon", `${pokemonName}.json`));
+    const dbDir = await getDbDir();
+    const pokemon = await readJson(path.join(dbDir, "pokemon", `${pokemonName}.json`));
     sendJson(res, 200, rewritePokemon(req, pokemon));
     return;
   }
@@ -176,6 +201,8 @@ async function handleAdmin(req, res, pathname) {
 
   const body = await parseJsonBody(req);
   const { pokemon, species, generationName } = body;
+  const dbDir = GENERATED_DB_DIR;
+  activeDbDir = GENERATED_DB_DIR;
 
   if (!pokemon?.name || !species?.name || !generationName) {
     sendJson(res, 400, {
@@ -184,11 +211,13 @@ async function handleAdmin(req, res, pathname) {
     return;
   }
 
-  await writeJson(path.join(DB_DIR, "pokemon", `${pokemon.name}.json`), pokemon);
-  await writeJson(path.join(DB_DIR, "pokemon-species", `${species.name}.json`), species);
+  await writeJson(path.join(dbDir, "pokemon", `${pokemon.name}.json`), pokemon);
+  await writeJson(path.join(dbDir, "pokemon-species", `${species.name}.json`), species);
 
-  const generationsPath = path.join(DB_DIR, "generations.json");
-  const generations = await readJson(generationsPath);
+  const generationsPath = path.join(dbDir, "generations.json");
+  const generations = await pathExists(generationsPath)
+    ? await readJson(generationsPath)
+    : { count: 0, next: null, previous: null, results: [] };
   let generationIndex = generations.results.findIndex(entry => entry.name === generationName);
 
   if (generationIndex === -1) {
@@ -198,7 +227,7 @@ async function handleAdmin(req, res, pathname) {
       url: `/api/v2/generation/${generationName}`,
     });
     generationIndex = generations.results.length - 1;
-    await writeJson(path.join(DB_DIR, "generation", `${generationName}.json`), {
+    await writeJson(path.join(dbDir, "generation", `${generationName}.json`), {
       id: generations.results[generationIndex].id,
       name: generationName,
       pokemon_species: [],
@@ -208,7 +237,7 @@ async function handleAdmin(req, res, pathname) {
   generations.count = generations.results.length;
   await writeJson(generationsPath, generations);
 
-  const generationPath = path.join(DB_DIR, "generation", `${generationName}.json`);
+  const generationPath = path.join(dbDir, "generation", `${generationName}.json`);
   const generation = await readJson(generationPath);
   const hasSpecies = generation.pokemon_species.some(entry => entry.name === species.name);
 
