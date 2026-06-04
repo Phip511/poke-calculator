@@ -8,4 +8,4 @@ services:
       - /app/node_modules
     environment:
       PORT: "3000"
-    command: npm start
+    command: node server.js

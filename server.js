@@ -300,3 +300,18 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`Pokemon EV calculator running at http://localhost:${PORT}`);
 });
+
+function shutdown(signal) {
+  console.log(`Received ${signal}. Shutting down cleanly...`);
+  server.close(error => {
+    if (error) {
+      console.error(error);
+      process.exit(1);
+    }
+
+    process.exit(0);
+  });
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
