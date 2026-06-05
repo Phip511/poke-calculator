@@ -227,6 +227,10 @@ progress::-webkit-progress-value {
     button {
         width: 100%;
     }
+
+    .remaining-summary {
+        width: 100%;
+    }
 }
 
 .total-ev-box {
@@ -240,8 +244,28 @@ progress::-webkit-progress-value {
 
 .button-row {
     display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 18px;
+}
+
+.remaining-summary {
+    display: grid;
+    min-width: 160px;
+    align-content: center;
+    gap: 2px;
+    padding: 8px 12px;
+    margin: 6px 0;
+    background: #ffffff18;
+    border: 1px solid #ffffff22;
+    border-radius: 10px;
+    color: #d1d5db;
+    font-size: 13px;
+}
+
+.remaining-summary strong {
+    color: #f9fafb;
 }
 
 .saved-spreads {

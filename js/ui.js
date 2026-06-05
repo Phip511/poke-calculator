@@ -171,6 +171,8 @@ function updateEVGainsDisplay() {
       lastWarningStat = stat;
     }
   }
+
+  updateRemainingTrainingSummary();
 }
 /*
 1) UI rendering function
@@ -196,6 +198,7 @@ function updateCurrentEVsDisplay() {
   updateEVRow("speed", "currentSpe", "barSpe", currentEVs.speed, targets.speed);
 
   getEl("totalEVs").textContent = getTotalEVs();
+  updateRemainingTrainingSummary();
 }
 /*
 1) A UI rendering function
@@ -265,3 +268,10 @@ function syncPokemonDropdown(speciesName) {
     - setSelectedPokemon()
     - syncGenerationSpeciesAndForms()
 */
+
+function updateRemainingTrainingSummary() {
+  const remainingSummary = getRemainingTrainingSummary();
+
+  getEl("remainingEVs").textContent = `${remainingSummary.remainingEVs} EVs`;
+  getEl("battlesNeeded").textContent = remainingSummary.battlesNeededText;
+}

@@ -139,6 +139,78 @@ function getPowerItemBonusByGeneration(powerItemGeneration) {
     - calculateModifiedEVGains()
 */
 
+function getUsefulRemainingEVs(evState, targets) {
+  const targetRemainingEVs = Object.keys(EMPTY_EVS).reduce((total, stat) => {
+    return total + Math.max(targets[stat] - evState[stat], 0);
+  }, 0);
+  const totalRemainingEVs = Math.max(TOTAL_EV_CAP - getTotalEVsFromState(evState), 0);
+
+  return Math.min(targetRemainingEVs, totalRemainingEVs);
+}
+
+function getTotalEVsFromState(evState) {
+  return Object.values(evState).reduce((total, value) => total + value, 0);
+}
+
+function applyOneEstimatedBattle(evState, targets) {
+  const nextState = { ...evState };
+  let didProgress = false;
+
+  for (const stat in evGains) {
+    const gain = evGains[stat];
+
+    if (gain <= 0 || nextState[stat] >= targets[stat]) {
+      continue;
+    }
+
+    const remainingTargetEVs = targets[stat] - nextState[stat];
+    const remainingTotalEVs = TOTAL_EV_CAP - getTotalEVsFromState(nextState);
+
+    if (remainingTotalEVs <= 0) {
+      break;
+    }
+
+    const amountToAdd = Math.min(gain, remainingTargetEVs, remainingTotalEVs);
+
+    if (amountToAdd > 0) {
+      nextState[stat] += amountToAdd;
+      didProgress = true;
+    }
+  }
+
+  return { nextState, didProgress };
+}
+
+function calculateBattlesNeededToTargets(targets) {
+  let simulatedEVs = { ...currentEVs };
+  let battlesNeeded = 0;
+  const maxBattlesToCheck = TOTAL_EV_CAP;
+
+  while (getUsefulRemainingEVs(simulatedEVs, targets) > 0) {
+    const battleResult = applyOneEstimatedBattle(simulatedEVs, targets);
+
+    if (!battleResult.didProgress || battlesNeeded >= maxBattlesToCheck) {
+      return null;
+    }
+
+    simulatedEVs = battleResult.nextState;
+    battlesNeeded += 1;
+  }
+
+  return battlesNeeded;
+}
+
+function getRemainingTrainingSummary() {
+  const targets = getTargets();
+  const remainingEVs = getUsefulRemainingEVs(currentEVs, targets);
+  const battlesNeeded = calculateBattlesNeededToTargets(targets);
+
+  return {
+    remainingEVs,
+    battlesNeededText: battlesNeeded === null ? "N/A" : battlesNeeded,
+  };
+}
+
 function allocateEVs() {
   syncCurrentEVsFromInputs();
   lastWarningStat = null;
