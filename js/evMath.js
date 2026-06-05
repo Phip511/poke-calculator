@@ -152,6 +152,19 @@ function getTotalEVsFromState(evState) {
   return Object.values(evState).reduce((total, value) => total + value, 0);
 }
 
+function getTrainableRemainingEVs(evState, targets) {
+  const targetRemainingEVs = Object.keys(EMPTY_EVS).reduce((total, stat) => {
+    if (evGains[stat] <= 0) {
+      return total;
+    }
+
+    return total + Math.max(targets[stat] - evState[stat], 0);
+  }, 0);
+  const totalRemainingEVs = Math.max(TOTAL_EV_CAP - getTotalEVsFromState(evState), 0);
+
+  return Math.min(targetRemainingEVs, totalRemainingEVs);
+}
+
 function applyOneEstimatedBattle(evState, targets) {
   const nextState = { ...evState };
   let didProgress = false;
@@ -186,7 +199,7 @@ function calculateBattlesNeededToTargets(targets) {
   let battlesNeeded = 0;
   const maxBattlesToCheck = TOTAL_EV_CAP;
 
-  while (getUsefulRemainingEVs(simulatedEVs, targets) > 0) {
+  while (getTrainableRemainingEVs(simulatedEVs, targets) > 0) {
     const battleResult = applyOneEstimatedBattle(simulatedEVs, targets);
 
     if (!battleResult.didProgress || battlesNeeded >= maxBattlesToCheck) {
@@ -202,12 +215,13 @@ function calculateBattlesNeededToTargets(targets) {
 
 function getRemainingTrainingSummary() {
   const targets = getTargets();
-  const remainingEVs = getUsefulRemainingEVs(currentEVs, targets);
+  const totalRemainingEVs = getUsefulRemainingEVs(currentEVs, targets);
+  const trainableRemainingEVs = getTrainableRemainingEVs(currentEVs, targets);
   const battlesNeeded = calculateBattlesNeededToTargets(targets);
 
   return {
-    remainingEVs,
-    battlesNeededText: battlesNeeded === null ? "N/A" : battlesNeeded,
+    remainingEVs: trainableRemainingEVs,
+    battlesNeededText: totalRemainingEVs > 0 && trainableRemainingEVs === 0 ? "N/A" : battlesNeeded,
   };
 }
 
