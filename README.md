@@ -90,7 +90,7 @@ Features
 * Select a generation, then a Pokémon species, then a form (if applicable)
 * Search bar supports direct Pokémon lookup (e.g., “charizard”, “deoxys”)
 * Automatically resolves default forms for special Pokémon (e.g., Deoxys → Deoxys-Normal)
-* Displays Pokémon sprite and EV yield
+* Displays the Pokémon sprite and EV yield, with a normal/shiny sprite toggle when both sprites are available
 
 2. EV Gains Display
 
@@ -117,25 +117,25 @@ Features
 * Manually set current EVs for all stats
 * Set per-stat target EVs (max 252 per stat)
 * Total EV cap enforced at 510
+* Save named training spreads in browser local storage; selected spreads autosave as training changes
 
 5. EV Allocation System
 
 * “Allocate EVs” button applies EV gains from the selected Pokémon
 * Automatically clamps values to:
 
-  * Stat target (252 max per stat)
+  * Hard stat cap (255 per stat)
   * Global cap (510 total EVs)
-* Shows notifications when:
-
-  * A stat reaches its target
-  * The total EV limit is reached
+* Calculates target-aware remaining EVs and battles needed from the current Pokémon's EV yield
 
 6. Visual Feedback
 
 * Progress bars for each stat
 * Total EV counter (e.g., 372 / 510)
-* Highlighted stats when capped
-* EV gains turn red when they would overflow
+* Preview of the EV total after the next battle
+* Inline, non-repeating feedback when the next battle reaches or passes a target
+* Distinct row and total feedback when gains are blocked by stat or total caps
+* Transient notifications are deduplicated while visible
 
 7. Reset System
 
@@ -183,19 +183,14 @@ Important Notes
 
 Known Limitations
 
-* No persistent storage (refresh resets data)
-* Notifications may repeat if conditions persist
 * Not all historical EV changes may be covered
-* No battle counter or “battles remaining” calculation yet
+* Saved spreads are local to the current browser profile and are not synced between devices
+* The battles estimate covers the selected Pokémon's trainable target stats; it does not plan a route across multiple Pokémon
 
 ---
 
 Future Improvements
 
-* Remaining EV / battles needed display
-* Smarter notifications (non-repeating, inline warnings)
-* Improved UI feedback for overflow conditions
-* Shiny sprite toggle
 * Admin UI for adding/editing local Pokémon records
 * Map builder to keep track of what pokemon are where (similar to pokenav for ORAS)
 * Game-based maps styled similarly to HGSS and BW maps for each game

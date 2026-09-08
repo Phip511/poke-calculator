@@ -152,6 +152,53 @@ function getTotalEVsFromState(evState) {
   return Object.values(evState).reduce((total, value) => total + value, 0);
 }
 
+function getAllocationPreview(evState, targets) {
+  const stats = {};
+  const currentTotal = getTotalEVsFromState(evState);
+  let remainingTotalCapacity = Math.max(TOTAL_EV_CAP - currentTotal, 0);
+  let totalApplied = 0;
+  let blockedByTotal = 0;
+
+  for (const stat of Object.keys(EMPTY_EVS)) {
+    const current = evState[stat];
+    const target = targets[stat];
+    const gain = Math.max(evGains[stat], 0);
+    const hardCapCapacity = Math.max(HARD_EV_CAP - current, 0);
+    const gainAfterHardCap = Math.min(gain, hardCapCapacity);
+    const amountApplied = Math.min(gainAfterHardCap, remainingTotalCapacity);
+    const blockedByHardCap = gain - gainAfterHardCap;
+    const blockedForStatByTotal = gainAfterHardCap - amountApplied;
+    const targetCapacity = Math.max(target - current, 0);
+    const gainPastTarget = Math.max(amountApplied - targetCapacity, 0);
+    const projected = current + amountApplied;
+
+    stats[stat] = {
+      amountApplied,
+      blockedByHardCap,
+      blockedByTotal: blockedForStatByTotal,
+      gainPastTarget,
+      projected,
+      willReachTarget: current < target && projected >= target,
+      willExceedTarget: gainPastTarget > 0,
+      isBlocked: blockedByHardCap > 0 || blockedForStatByTotal > 0,
+    };
+
+    remainingTotalCapacity -= amountApplied;
+    totalApplied += amountApplied;
+    blockedByTotal += blockedForStatByTotal;
+  }
+
+  return {
+    stats,
+    currentTotal,
+    projectedTotal: currentTotal + totalApplied,
+    blockedByTotal,
+    hasAllocatableGain: totalApplied > 0,
+    isNearTotalCap: currentTotal < TOTAL_EV_CAP && currentTotal + totalApplied >= TOTAL_EV_CAP,
+    isTotalCapped: currentTotal >= TOTAL_EV_CAP,
+  };
+}
+
 function getTrainableRemainingEVs(evState, targets) {
   const targetRemainingEVs = Object.keys(EMPTY_EVS).reduce((total, stat) => {
     if (evGains[stat] <= 0) {
@@ -219,6 +266,13 @@ function getRemainingTrainingSummary() {
   const trainableRemainingEVs = getTrainableRemainingEVs(currentEVs, targets);
   const battlesNeeded = calculateBattlesNeededToTargets(targets);
 
+  if (!selectedPokemon) {
+    return {
+      remainingEVs: totalRemainingEVs,
+      battlesNeededText: "Select Pokemon",
+    };
+  }
+
   return {
     remainingEVs: trainableRemainingEVs,
     battlesNeededText: totalRemainingEVs > 0 && trainableRemainingEVs === 0 ? "N/A" : battlesNeeded,
@@ -227,9 +281,6 @@ function getRemainingTrainingSummary() {
 
 function allocateEVs() {
   syncCurrentEVsFromInputs();
-  lastWarningStat = null;
-
-  const targets = getTargets();
 
   for (const stat in evGains) {
     const gain = evGains[stat];
@@ -238,28 +289,17 @@ function allocateEVs() {
       continue;
     }
 
-    const target = targets[stat];
     const currentStatValue = currentEVs[stat];
 
     const remainingStatEVs = HARD_EV_CAP - currentStatValue;
     const remainingTotalEVs = TOTAL_EV_CAP - getTotalEVs();
 
     if (remainingTotalEVs <= 0) {
-      showNotification("Total EV limit of 510 has been reached.");
       break;
     }
 
     if (remainingStatEVs <= 0) {
-      showNotification(`${formatName(stat)} cannot exceed ${HARD_EV_CAP} EVs!`);
       continue;
-    }
-
-    if (currentStatValue < target && currentStatValue + gain >= target) {
-      showNotification(`${formatName(stat)} will reach its useful EV target next!`);
-    }
-
-    if (currentStatValue + gain > HARD_EV_CAP) {
-      showNotification(`${formatName(stat)} cannot exceed ${HARD_EV_CAP} EVs!`);
     }
 
     const amountToAdd = Math.min(gain, remainingStatEVs, remainingTotalEVs);
@@ -276,10 +316,9 @@ function allocateEVs() {
     - syncs current EV state
     - applies EV gains
     - enforces:
-        - 252 stat cap
+        - 255 hard stat cap
         - 510 total EV cap
     - updates state
-    - triggers notifications
     - refreshes UI
 3) Directly used by:
     - Allocate EVs button listener

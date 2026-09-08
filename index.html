@@ -81,7 +81,13 @@
                     </select>
                 </div>
 
-                <img id="pokemonImage" src="" alt="Selected Pokémon sprite">
+                <div class="pokemon-sprite-area">
+                    <img id="pokemonImage" src="" alt="Selected Pokémon sprite">
+                    <label class="shiny-toggle" for="shinySprite">
+                        <input id="shinySprite" type="checkbox" disabled>
+                        Shiny
+                    </label>
+                </div>
 
                 <h2>EV Gains</h2>
                 <div id="evGains" class="ev-gains">
@@ -101,6 +107,7 @@
                 
                 <div class="total-ev-box">
                     Total EVs: <span id="totalEVs">0</span> / 510
+                    <span id="projectedTotalEVs" class="projected-total"></span>
                 </div>
 
                 <h2>Training Modifiers</h2>
@@ -179,6 +186,8 @@
                     <span>Target</span>
                     <input id="targetSpe" type="number" value="252" min="0" max="252">
                 </div>
+
+                <div id="trainingWarnings" class="training-warnings" role="status" aria-live="polite" hidden></div>
 
                 <div class="button-row">
                     <button id="allocateButton" type="button">Allocate EVs</button>

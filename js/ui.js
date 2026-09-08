@@ -42,18 +42,28 @@ function formatName(name) {
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 }
-/*
-1) A display formatting helper
-2) Converts PokeAPI names to a human-readable format. EX: "deoxys-attack" -> "Deoxys Attack"
-3) Functions:
-    - applyPokemonData()
-    - updateEVGainsDisplay()
-    - fetchPokemonByGeneration()
-    - fetchPokemonForms()
-    - allocateEVs()
-*/
+/* Converts API names such as "deoxys-attack" into display labels. */
 
-function showNotification(message) {
+function formatStatName(stat) {
+  const statNames = {
+    hp: "HP",
+    attack: "Attack",
+    defense: "Defense",
+    specialAttack: "Special Attack",
+    specialDefense: "Special Defense",
+    speed: "Speed",
+  };
+
+  return statNames[stat] || formatName(stat);
+}
+
+function formatEVCount(value) {
+  return `${value} EV${value === 1 ? "" : "s"}`;
+}
+
+const activeNotificationMessages = new Set();
+
+function showNotification(message, tone = "info") {
   const notificationContainer = getEl("notification");
 
   if (!notificationContainer) {
@@ -61,13 +71,22 @@ function showNotification(message) {
     return;
   }
 
+  if (activeNotificationMessages.has(message)) {
+    return;
+  }
+
+  activeNotificationMessages.add(message);
+
   const notification = document.createElement("div");
-  notification.className = "notification";
+  notification.className = `notification notification-${tone}`;
   notification.textContent = message;
+  notification.setAttribute("role", tone === "error" ? "alert" : "status");
 
   notificationContainer.appendChild(notification);
 
   setTimeout(() => {
+    activeNotificationMessages.delete(message);
+
     if (notification.parentNode) {
       notification.parentNode.removeChild(notification);
     }
@@ -106,15 +125,35 @@ function getTargets() {
     - allocateEVs()
 */
 
-function renderPokemonImage(data) {
+function renderPokemonImage(data = selectedPokemonData) {
   const image = getEl("pokemonImage");
+  const shinyToggle = getEl("shinySprite");
 
-  image.src =
+  if (!data) {
+    image.src = "";
+    shinyToggle.disabled = true;
+    return;
+  }
+
+  const normalSprite =
     data.sprites.front_default ||
     data.sprites.other?.["official-artwork"]?.front_default ||
     "";
+  const shinySprite =
+    data.sprites.front_shiny ||
+    data.sprites.other?.["official-artwork"]?.front_shiny ||
+    "";
 
-  image.alt = `${formatName(data.name)} sprite`;
+  if (!shinySprite) {
+    showShinySprite = false;
+  }
+
+  shinyToggle.disabled = !shinySprite;
+  shinyToggle.checked = showShinySprite;
+  shinyToggle.closest(".shiny-toggle").classList.toggle("is-unavailable", !shinySprite);
+  image.src = showShinySprite ? shinySprite : normalSprite;
+
+  image.alt = `${showShinySprite ? "Shiny " : ""}${formatName(data.name)} sprite`;
 }
 
 function syncCurrentEVsFromInputs() {
@@ -140,46 +179,40 @@ function syncCurrentEVsFromInputs() {
 
 function updateEVGainsDisplay() {
   const targets = getTargets();
-  const totalEVs = getTotalEVs();
+  const allocationPreview = getAllocationPreview(currentEVs, targets);
 
-  const statMap = {
-    hp: "gainHp",
-    attack: "gainAtk",
-    defense: "gainDef",
-    specialAttack: "gainSpa",
-    specialDefense: "gainSpd",
-    speed: "gainSpe",
+  const statElementMap = {
+    hp: { gainId: "gainHp", currentInputId: "currentHp" },
+    attack: { gainId: "gainAtk", currentInputId: "currentAtk" },
+    defense: { gainId: "gainDef", currentInputId: "currentDef" },
+    specialAttack: { gainId: "gainSpa", currentInputId: "currentSpa" },
+    specialDefense: { gainId: "gainSpd", currentInputId: "currentSpd" },
+    speed: { gainId: "gainSpe", currentInputId: "currentSpe" },
   };
 
   for (const stat in evGains) {
-    const el = getEl(statMap[stat]);
+    const elementIds = statElementMap[stat];
+    const el = getEl(elementIds.gainId);
     const gain = evGains[stat];
-    const current = currentEVs[stat];
-    const target = targets[stat];
+    const statPreview = allocationPreview.stats[stat];
+    const rowElement = getEl(elementIds.currentInputId).closest(".ev-row");
 
     el.textContent = gain;
-
-    const willReach = current < target && current + gain >= target;
-    const willOverflow = current + gain > target || totalEVs + gain > 510;
-
-    // color red if overflow
-    el.classList.toggle("ev-overflow", willOverflow);
-
-    // trigger notification when about to reach
-    if (willReach && lastWarningStat !== stat) {
-      showNotification(`${formatName(stat)} will reach its goal next!`);
-      lastWarningStat = stat;
-    }
+    el.classList.toggle("ev-overflow", statPreview.willExceedTarget || statPreview.isBlocked);
+    rowElement.classList.toggle("will-overflow", statPreview.willExceedTarget);
+    rowElement.classList.toggle("will-hit-target", statPreview.willReachTarget && !statPreview.willExceedTarget);
+    rowElement.classList.toggle("allocation-blocked", statPreview.isBlocked);
   }
 
+  updateTrainingFeedback(allocationPreview);
   updateRemainingTrainingSummary();
 }
 /*
 1) UI rendering function
 2) Updates:
     - EV gain numbers
-    - red overflow coloring
-    - warning notifications
+    - target and cap previews
+    - inline training feedback
 3) Directly used by:
     - applyPokemonData()
     - refreshModifiedEVGains()
@@ -272,6 +305,69 @@ function syncPokemonDropdown(speciesName) {
 function updateRemainingTrainingSummary() {
   const remainingSummary = getRemainingTrainingSummary();
 
-  getEl("remainingEVs").textContent = `${remainingSummary.remainingEVs} EVs`;
+  getEl("remainingEVs").textContent = formatEVCount(remainingSummary.remainingEVs);
   getEl("battlesNeeded").textContent = remainingSummary.battlesNeededText;
+}
+
+function updateTrainingFeedback(allocationPreview) {
+  const warningContainer = getEl("trainingWarnings");
+  const totalBox = getEl("totalEVs").closest(".total-ev-box");
+  const projectedTotal = getEl("projectedTotalEVs");
+  const allocateButton = getEl("allocateButton");
+  const messages = [];
+
+  totalBox.classList.toggle("near-total-cap", allocationPreview.isNearTotalCap);
+  totalBox.classList.toggle("total-capped", allocationPreview.isTotalCapped);
+  allocateButton.disabled = !selectedPokemon || !allocationPreview.hasAllocatableGain;
+  projectedTotal.textContent = selectedPokemon && allocationPreview.hasAllocatableGain
+    ? `Next battle: ${allocationPreview.projectedTotal} / ${TOTAL_EV_CAP}`
+    : "";
+
+  if (!selectedPokemon) {
+    warningContainer.hidden = true;
+    warningContainer.replaceChildren();
+    return;
+  }
+
+  if (allocationPreview.isTotalCapped) {
+    messages.push({
+      tone: "danger",
+      text: `The ${TOTAL_EV_CAP} total EV cap has been reached.`,
+    });
+  } else if (allocationPreview.blockedByTotal > 0) {
+    messages.push({
+      tone: "danger",
+      text: `${formatEVCount(allocationPreview.blockedByTotal)} from the next battle will be blocked by the total cap.`,
+    });
+  }
+
+  for (const stat in allocationPreview.stats) {
+    const statPreview = allocationPreview.stats[stat];
+
+    if (statPreview.blockedByHardCap > 0) {
+      messages.push({
+        tone: "danger",
+        text: `${formatStatName(stat)} is limited by its ${HARD_EV_CAP} EV hard cap next battle.`,
+      });
+    } else if (statPreview.willExceedTarget) {
+      messages.push({
+        tone: "warning",
+        text: `${formatStatName(stat)} will exceed its target by ${formatEVCount(statPreview.gainPastTarget)} next battle.`,
+      });
+    } else if (statPreview.willReachTarget) {
+      messages.push({
+        tone: "ready",
+        text: `${formatStatName(stat)} will reach its target next battle.`,
+      });
+    }
+  }
+
+  warningContainer.replaceChildren();
+  messages.forEach(({ tone, text }) => {
+    const item = document.createElement("div");
+    item.className = `training-warning training-warning-${tone}`;
+    item.textContent = text;
+    warningContainer.appendChild(item);
+  });
+  warningContainer.hidden = messages.length === 0;
 }

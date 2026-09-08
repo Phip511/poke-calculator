@@ -16,6 +16,7 @@ Format for comments:
 function applyPokemonData(data) {
   const defaultEVs = buildEVsFromPokemonData(data);
 
+  selectedPokemonData = data;
   baseEVGains = applyEVOverrideIfNeeded(data.name, defaultEVs);
   evGains = calculateModifiedEVGains(baseEVGains);
 
@@ -83,7 +84,7 @@ async function setSelectedPokemon(pokemonName, shouldAutoSwitchGeneration = true
     }
   } catch (error) {
     console.error("Error selecting Pokémon:", error);
-    showNotification("Pokémon not found.");
+    showNotification("Pokémon not found.", "error");
   }
 }
 /*
@@ -141,7 +142,7 @@ function searchPokemon() {
   const name = input.value.trim();
 
   if (!name) {
-    showNotification("Enter a Pokémon name.");
+    showNotification("Enter a Pokémon name.", "error");
     return;
   }
 
@@ -174,6 +175,11 @@ function setupEventListeners() {
   };
   getEl("pokerus").onchange = () => {
     refreshModifiedEVGains();
+    autosaveActiveSpread();
+  };
+  getEl("shinySprite").onchange = event => {
+    showShinySprite = event.target.checked;
+    renderPokemonImage();
     autosaveActiveSpread();
   };
 

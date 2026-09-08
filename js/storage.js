@@ -28,6 +28,7 @@ function buildSpreadSnapshot(name) {
     trainingGame: getEl("trainingGame").value,
     heldItem: getEl("heldItem").value,
     hasPokerus: getEl("pokerus").checked,
+    useShinySprite: showShinySprite,
     savedAt: new Date().toISOString(),
   };
 }
@@ -43,7 +44,7 @@ function getDefaultSpreadName() {
 
 function createCurrentSpread() {
   if (!selectedPokemon) {
-    showNotification("Select a Pokemon before adding a spread.");
+    showNotification("Select a Pokemon before adding a spread.", "error");
     return;
   }
 
@@ -99,6 +100,8 @@ async function loadSelectedSpread() {
     getEl("trainingGame").value = getSavedSpreadTrainingGame(spread);
     getEl("heldItem").value = spread.heldItem || "none";
     getEl("pokerus").checked = Boolean(spread.hasPokerus);
+    showShinySprite = Boolean(spread.useShinySprite);
+    getEl("shinySprite").checked = showShinySprite;
 
     await setSelectedPokemon(spread.pokemonName, true);
 
@@ -120,7 +123,7 @@ function deleteSelectedSpread() {
   const spreadId = getEl("savedSpreadList").value;
 
   if (!spreadId) {
-    showNotification("Choose a saved spread to delete.");
+    showNotification("Choose a saved spread to delete.", "error");
     return;
   }
 

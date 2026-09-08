@@ -19,5 +19,6 @@ let baseEVGains = { ...EMPTY_EVS }; // Raw Pokémon EV yield BEFORE modifiers.
 
 let selectedPokemon = null; // Current selected Pokémon form. EX: deoxys-attack
 let selectedSpecies = null; // Current species independent of form. EX: deoxys
+let selectedPokemonData = null; // Raw data for the selected form, including sprite variants.
+let showShinySprite = false; // Whether the selected Pokemon should use its shiny sprite.
 let isSyncingUI = false; // internal UI lock. Prevents infinite loop between dropdown and syncing
-let lastWarningStat = null; // Tracks last stat warned about to avoid notification spam.

@@ -92,7 +92,7 @@ async function fetchGenerations() {
     }
   } catch (error) {
     console.error("Error fetching generations:", error);
-    showNotification("Could not load generations.");
+    showNotification("Could not load generations.", "error");
   }
 }
 /*
@@ -137,7 +137,7 @@ async function fetchPokemonByGeneration(genUrl, shouldLoadFirstSpecies = false) 
     }
   } catch (error) {
     console.error("Error fetching Pokémon for generation:", error);
-    showNotification("Could not load Pokémon list.");
+    showNotification("Could not load Pokémon list.", "error");
   }
 }
 
@@ -191,7 +191,7 @@ async function fetchPokemonForms(speciesName, currentPokemonName = null, shouldL
     }
   } catch (error) {
     console.error("Error fetching Pokémon forms:", error);
-    showNotification("Could not load Pokémon forms.");
+    showNotification("Could not load Pokémon forms.", "error");
   }
 }
 /*

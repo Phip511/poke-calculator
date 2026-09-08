@@ -92,16 +92,58 @@ button:hover {
     transform: scale(1.05);
 }
 
+button:disabled {
+    background: #6b7280;
+    color: #d1d5db;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+button:disabled:hover {
+    background: #6b7280;
+    transform: none;
+}
+
 /* Pokemon image */
+.pokemon-sprite-area {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
 #pokemonImage {
     display: block;
-    margin: 20px auto;
+    margin: 0;
     width: 160px;
     height: 160px;
     background: #ffffff18;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 10px;
     image-rendering: pixelated;
+}
+
+.shiny-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    margin: 0;
+    padding: 4px 10px;
+    border: 1px solid #ffffff33;
+    border-radius: 8px;
+    background: #ffffff12;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.shiny-toggle input {
+    margin: 0;
+}
+
+.shiny-toggle.is-unavailable {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 /* EV sections */
@@ -117,6 +159,10 @@ button:hover {
     align-items: center;
     gap: 8px;
     margin: 10px 0;
+    padding: 6px;
+    border-radius: 8px;
+    outline: 1px solid transparent;
+    transition: background-color 0.15s, outline-color 0.15s;
 }
 
 .ev-row progress {
@@ -188,14 +234,21 @@ progress::-webkit-progress-value {
 
 /* Notification */
 .notification {
-    background-color: #ef4444;
     color: white;
     padding: 12px 16px;
     margin: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: bold;
     box-shadow: 0 10px 25px #00000055;
-    animation: fade-out 5s forwards;
+    animation: fade-out 3s forwards;
+}
+
+.notification-info {
+    background-color: #047857;
+}
+
+.notification-error {
+    background-color: #b91c1c;
 }
 
 #notification {
@@ -220,8 +273,24 @@ progress::-webkit-progress-value {
     }
 
     .ev-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
+        grid-template-columns: 34px 54px minmax(50px, 1fr) 42px 54px;
+        gap: 4px;
+        padding: 4px;
+    }
+
+    .ev-row input {
+        width: 54px;
+        min-width: 0;
+        padding: 6px 4px;
+    }
+
+    .ev-row progress {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ev-row > span {
+        font-size: 12px;
     }
 
     button {
@@ -237,9 +306,30 @@ progress::-webkit-progress-value {
     margin: 15px 0;
     padding: 12px;
     background: #ffffff18;
-    border-radius: 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
     font-weight: bold;
     text-align: center;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.total-ev-box.near-total-cap {
+    background: #f59e0b20;
+    border-color: #fbbf24;
+}
+
+.total-ev-box.total-capped {
+    background: #ef444420;
+    border-color: #f87171;
+}
+
+.projected-total {
+    display: block;
+    min-height: 17px;
+    margin-top: 3px;
+    color: #d1d5db;
+    font-size: 12px;
+    font-weight: normal;
 }
 
 .button-row {
@@ -259,7 +349,7 @@ progress::-webkit-progress-value {
     margin: 6px 0;
     background: #ffffff18;
     border: 1px solid #ffffff22;
-    border-radius: 10px;
+    border-radius: 8px;
     color: #d1d5db;
     font-size: 13px;
 }
@@ -308,6 +398,11 @@ progress::-webkit-progress-value {
     background: #00000022;
     border: 1px solid #ffffff18;
     border-radius: 8px;
+}
+
+.saved-spreads-panel[hidden],
+.training-warnings[hidden] {
+    display: none;
 }
 
 .spread-row {
@@ -365,8 +460,59 @@ progress::-webkit-progress-value {
 }
 
 .ev-row.capped {
-    border: 1px solid #facc15;
-    border-radius: 12px;
-    padding: 6px;
     background: #facc1520;
+    outline-color: #facc15;
+}
+
+.ev-row.hard-capped,
+.ev-row.allocation-blocked {
+    background: #ef444420;
+    outline-color: #f87171;
+}
+
+.ev-row.will-overflow:not(.allocation-blocked) {
+    background: #f59e0b20;
+    outline-color: #fbbf24;
+}
+
+.ev-row.will-hit-target:not(.will-overflow):not(.allocation-blocked) {
+    background: #22c55e20;
+    outline-color: #4ade80;
+}
+
+.hard-capped-stat {
+    color: #fca5a5;
+    font-weight: bold;
+}
+
+.training-warnings {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.training-warning {
+    padding: 8px 10px;
+    border-left: 3px solid;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.training-warning-ready {
+    background: #22c55e18;
+    border-color: #4ade80;
+    color: #dcfce7;
+}
+
+.training-warning-warning {
+    background: #f59e0b18;
+    border-color: #fbbf24;
+    color: #fef3c7;
+}
+
+.training-warning-danger {
+    background: #ef444418;
+    border-color: #f87171;
+    color: #fee2e2;
 }
