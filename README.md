@@ -27,7 +27,13 @@ Local Development
    npm run seed:db
    ```
 
-The repository includes a tiny starter database containing Bulbasaur in `db/sample-pokeapi` so the server can boot immediately. Run `npm run seed:db` to populate the full local dataset in `db/pokeapi`.
+   Existing valid records are reused, so an interrupted seed can be safely resumed. To deliberately download and replace every record:
+
+   ```bash
+   npm run seed:db:refresh
+   ```
+
+The repository includes a tiny starter database containing Bulbasaur in `db/sample-pokeapi` so the server can boot immediately. Run `npm run seed:db` to populate the full local dataset in `db/pokeapi`. Seeder output is split into generation, species, and Pokémon/form phases; species and form names may repeat across phases because they are separate API records.
 
 `db/pokeapi` is ignored by Git because it is generated data. The server uses `db/pokeapi` when it exists and falls back to `db/sample-pokeapi` otherwise.
 

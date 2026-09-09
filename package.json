@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "seed:db": "node scripts/seed-pokemon-db.js"
+    "seed:db": "node scripts/seed-pokemon-db.js",
+    "seed:db:refresh": "node scripts/seed-pokemon-db.js --refresh"
   },
   "engines": {
     "node": ">=18"
